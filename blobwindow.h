@@ -5,6 +5,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QMap>
 
 namespace Ui {
 class BlobWindow;
@@ -21,7 +22,13 @@ public:
 private:
     Ui::BlobWindow *ui;
 
+    QMap<QPair<int,int>, QVector<float>*> _map;
+
     void    initBlobDatabase();
+
+    QByteArray      blobify(QVector<float> vec);
+    QByteArray      blobify(QVector<float>* vec);
+    QVector<float>  unBlobify(QByteArray data);
 
 public slots:
     void on_insertBtn_clicked();

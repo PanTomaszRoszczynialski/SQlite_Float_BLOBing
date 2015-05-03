@@ -31,22 +31,47 @@ void BlobWindow::initBlobDatabase()
                "(ID         integer primary key, "
                "Name        varchar(255), "
                "floatsVec   BLOB)");
+}
 
-    query.prepare("INSERT INTO Blobs ("
-                  "Name) VALUES ("
-                  ":Name)");
-    query.bindValue(":Name","What");
-    query.exec();
+QByteArray BlobWindow::blobify(QVector<float> vec)
+{
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << vec;
+
+    return data;
+}
+
+QByteArray BlobWindow::blobify(QVector<float> *vec)
+{
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << *vec;
+
+    return data;
+}
+
+QVector<float> BlobWindow::unBlobify(QByteArray data)
+{
+    QVector<float> vec;
+    QDataStream stream(data);
+    stream >> vec;
+
+    return vec;
 }
 
 void BlobWindow::on_insertBtn_clicked()
 {
     QString name = ui->insertNameEdt->text();
-    QVector<float> vec = {1.1, 1.3, 3.1, -4.32132149};
-    QByteArray data;
-    QDataStream stream(&data, QIODevice::WriteOnly);
+    QVector<float> *vec = new QVector<float>;
 
-    stream << vec;
+    float tmp;
+    for (int i = 0; i < 5; ++i) {
+        tmp = 20.f/(rand()%1024);
+        vec->append(tmp);
+    }
+    qDebug() << *vec << __func__;
+    QByteArray data = blobify(vec);
 
 
     QSqlQuery query;
@@ -56,7 +81,7 @@ void BlobWindow::on_insertBtn_clicked()
     query.bindValue(":Name",name);
     query.bindValue(":floatsVec",data);
     query.exec();
-    qDebug() << data.toHex() << __func__;
+    qDebug() << data.toHex() << vec <<__func__;
 }
 
 void BlobWindow::on_loadBtn_clicked()
@@ -68,8 +93,7 @@ void BlobWindow::on_loadBtn_clicked()
     query.first();
     QByteArray data = query.value("floatsVec").toByteArray();
     qDebug() << data.toHex() << __func__;
-    QVector<float> vec;
-    QDataStream stream(data);
-    stream >> vec;
-    qDebug() << vec;
+    QVector<float> vec = unBlobify(data);
+
+    qDebug() << vec << __func__;
 }
