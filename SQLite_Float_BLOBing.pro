@@ -4,13 +4,14 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = SQLite_Float_BLOBing
 TEMPLATE = app
 
+CONFIG += c++11
 
 SOURCES += main.cpp\
         blobwindow.cpp

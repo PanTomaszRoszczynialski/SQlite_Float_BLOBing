@@ -2,6 +2,9 @@
 #define BLOBWINDOW_H
 
 #include <QMainWindow>
+#include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
 
 namespace Ui {
 class BlobWindow;
@@ -17,6 +20,12 @@ public:
 
 private:
     Ui::BlobWindow *ui;
+
+    void    initBlobDatabase();
+
+public slots:
+    void on_insertBtn_clicked();
+    void on_loadBtn_clicked();
 };
 
 #endif // BLOBWINDOW_H
