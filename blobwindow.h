@@ -7,6 +7,14 @@
 #include <QSqlError>
 #include <QMap>
 
+struct myType{
+    float flt = 0.;
+    bool  bl = false;
+};
+
+QDataStream &operator<<(QDataStream &out, const myType &strct);
+QDataStream &operator>>(QDataStream &in, myType &strct);
+
 namespace Ui {
 class BlobWindow;
 }
@@ -28,7 +36,11 @@ private:
 
     QByteArray      blobify(QVector<float> vec);
     QByteArray      blobify(QVector<float>* vec);
-    QVector<float>  unBlobify(QByteArray data);
+    QByteArray      blobify(QVector<myType>* vec);
+
+
+    QVector<myType>*    unBlobifyCustom(QByteArray data);
+    QVector<float>      unBlobify(QByteArray data);
 
 public slots:
     void on_insertBtn_clicked();

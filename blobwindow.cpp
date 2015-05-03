@@ -51,6 +51,15 @@ QByteArray BlobWindow::blobify(QVector<float> *vec)
     return data;
 }
 
+QByteArray BlobWindow::blobify(QVector<myType> *vec)
+{
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    stream << *vec;
+
+    return data;
+}
+
 QVector<float> BlobWindow::unBlobify(QByteArray data)
 {
     QVector<float> vec;
@@ -60,17 +69,27 @@ QVector<float> BlobWindow::unBlobify(QByteArray data)
     return vec;
 }
 
+QVector<myType>* BlobWindow::unBlobifyCustom(QByteArray data)
+{
+    QVector<myType>* vec = new QVector<myType>;
+    QDataStream stream(data);
+    stream >> *vec;
+
+    return vec;
+}
+
 void BlobWindow::on_insertBtn_clicked()
 {
     QString name = ui->insertNameEdt->text();
-    QVector<float> *vec = new QVector<float>;
+    QVector<myType> *vec = new QVector<myType>;
 
-    float tmp;
+    myType tmp;
     for (int i = 0; i < 5; ++i) {
-        tmp = 20.f/(rand()%1024);
+        tmp.flt = 20.f/(rand()%1024);
+        tmp.bl = rand()%1000 > 500;
         vec->append(tmp);
     }
-    qDebug() << *vec << __func__;
+    qDebug() << vec->first().flt << vec->first().bl << __func__;
     QByteArray data = blobify(vec);
 
 
@@ -81,7 +100,7 @@ void BlobWindow::on_insertBtn_clicked()
     query.bindValue(":Name",name);
     query.bindValue(":floatsVec",data);
     query.exec();
-    qDebug() << data.toHex() << vec <<__func__;
+    qDebug() << data.toHex() <<__func__;
 }
 
 void BlobWindow::on_loadBtn_clicked()
@@ -93,7 +112,19 @@ void BlobWindow::on_loadBtn_clicked()
     query.first();
     QByteArray data = query.value("floatsVec").toByteArray();
     qDebug() << data.toHex() << __func__;
-    QVector<float> vec = unBlobify(data);
+    QVector<myType> *vec = unBlobifyCustom(data);
 
-    qDebug() << vec << __func__;
+    qDebug() << vec->first().flt << vec->first().bl << __func__;
+}
+
+QDataStream &operator<<(QDataStream &out, const myType &strct)
+{
+    out << strct.flt << strct.bl;
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, myType &strct)
+{
+    in >> strct.flt >> strct.bl;
+    return in;
 }
